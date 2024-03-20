@@ -10,25 +10,6 @@ class FileStorage:
 
     def all(self, cls=None):
         """Returns a dictionary of models currently in storage"""
-        def all(self, cls=None):
-        """returns a dictionary, and if cls is given, return all objects of that
-        class type in a list.
-        Return:
-            returns a dictionary of __object
-        """
-        if cls is None:
-            return self.__objects
-        else:
-            if isinstance(cls, str):
-                cls = eval("{}".format(cls))
-            new_dict = {}
-            for k, v in self.__objects.items():
-                print("{}: {}".format(k, v))
-                if type(v) == cls:
-                    print("adding\n")
-                    new_dict[k] = v
-            return new_dict
-        """
         if cls is None:
             return FileStorage.__objects
 
@@ -37,7 +18,6 @@ class FileStorage:
             if isinstance(value, cls):
                 filtered[key] = value
         return filtered
-        """
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
