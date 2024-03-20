@@ -169,20 +169,21 @@ class HBNBCommand(cmd.Cmd):
         new_instance = HBNBCommand.classes[cmd_name]()
 
         if len(args_list) >= 2:
-            for arg in range(args_list[1:]): # exclude the first arg `cmd_name`
+            for arg in args_list[1:]:  # Iterate over the arguments list except for the class name
                 try:
                     key, value = arg.split("=")
-                except ValueError: # cannot unpack to key and value pair variable
+                except ValueError:  # cannot unpack to key and value pair variable
                     continue
                 try:
                     new_value = self.type_cast_arg(value, HBNBCommand.types[key])
                 except KeyError:
                     continue
                 new_instance.__dict__[key] = new_value
-                
+
         storage.save()
         print(new_instance.id)
         storage.save()
+
 
     def help_create(self):
         """ Help information for the create method """
