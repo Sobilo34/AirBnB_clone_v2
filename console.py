@@ -24,12 +24,53 @@ class HBNBCommand(cmd.Cmd):
                'Review': Review
               }
     dot_cmds = ['all', 'count', 'show', 'destroy', 'update']
-    types = {
-             'number_rooms': int, 'number_bathrooms': int,
-             'max_guest': int, 'price_by_night': int,
-             'latitude': float, 'longitude': float
-            }
 
+    # Dictionary containing the unique public class attribute types
+    types = {
+        "user_id": str, "name": str,
+        # User
+        "email": str, "password": str,
+        "first_name": str, "last_name": str,
+        # City
+        "state_id": str,
+        # Place
+        "city_id": str,
+        "description": str, "number_rooms": int,
+        "number_bathrooms": int, "max_guest": int,
+        "price_by_night": int, "latitude": float,
+        "longitude": float, "amenity_ids": list,
+        # Reviews
+        "place_id": str, "text": str
+    }
+    
+    def type_cast_arg(self, value, type):
+        """Cast arguments base on the data type given."""
+        try:
+            value = eval(value)
+        except:
+            return
+        
+        if isinstance(value, str) and type is str:
+            return value.replace("_", " ")
+        
+        elif isinstance(value, int) and type is int:
+            return value
+        
+        elif isinstance(value, float) and type is float:
+            return value
+        
+        elif isinstance(value, list) and type is list:
+            for index, item in enumerate(value):
+                if not isinstance(item, str):
+                    return
+                else:
+                    new_item = self.type_cast_arg(item, str)
+                    if new_item is None:
+                        return
+                    else:
+                        value[index] = new_item
+            return value
+        
     def preloop(self):
         """Prints if isatty is false"""
         if not sys.__stdin__.isatty():
@@ -115,13 +156,30 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, args):
         """ Create an object of any class"""
+        args_list = args.split(" ")
+        cmd_name = args_list[0]
+
         if not args:
             print("** class name missing **")
             return
-        elif args not in HBNBCommand.classes:
+
+        elif cmd_name not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
-        new_instance = HBNBCommand.classes[args]()
+        new_instance = HBNBCommand.classes[cmd_name]()
+
+        if len(args_list) >= 2:
+            for arg in range(args_list[1:]): # exclude the first arg `cmd_name`
+                try:
+                    key, value = arg.split("=")
+                except ValueError: # cannot unpack to key and value pair variable
+                    continue
+                try:
+                    new_value = self.type_cast_arg(value, HBNBCommand.types[key])
+                except KeyError:
+                    continue
+                new_instance.__dict__[key] = new_value
+                
         storage.save()
         print(new_instance.id)
         storage.save()
