@@ -169,7 +169,7 @@ class HBNBCommand(cmd.Cmd):
         new_instance = HBNBCommand.classes[cmd_name]()
 
         if len(args_list) >= 2:
-            for arg in range(args_list[1:]): # exclude the first arg `cmd_name`
+            for arg in args_list[1:]:  # iterate directly over args_list`
                 try:
                     key, value = arg.split("=")
                 except ValueError: # cannot unpack to key and value pair variable
