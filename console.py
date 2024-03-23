@@ -4,6 +4,7 @@ import cmd
 import sys
 from models.base_model import BaseModel
 from models.__init__ import storage
+from models import storage
 from models.user import User
 from models.place import Place
 from models.state import State
@@ -42,23 +43,23 @@ class HBNBCommand(cmd.Cmd):
         # Reviews
         "place_id": str, "text": str
     }
-    
+
     def type_cast_arg(self, value, type):
         """Cast arguments base on the data type given."""
         try:
             value = eval(value)
-        except:
+        except Exception:
             return
-        
+
         if isinstance(value, str) and type is str:
             return value.replace("_", " ")
-        
+
         elif isinstance(value, int) and type is int:
             return value
-        
+
         elif isinstance(value, float) and type is float:
             return value
-        
+
         elif isinstance(value, list) and type is list:
             for index, item in enumerate(value):
                 if not isinstance(item, str):
@@ -70,7 +71,7 @@ class HBNBCommand(cmd.Cmd):
                     else:
                         value[index] = new_item
             return value
-        
+
     def preloop(self):
         """Prints if isatty is false"""
         if not sys.__stdin__.isatty():
@@ -371,4 +372,3 @@ class HBNBCommand(cmd.Cmd):
 
 if __name__ == "__main__":
     HBNBCommand().cmdloop()
-
