@@ -76,7 +76,11 @@ class test_Place(test_basemodel):
 
     def test_place_attributes(self):
         """A test for place attribute"""
-        place = Place(name="Test Place", city_id="test_city_id", user_id="test_user_id")
+        place = Place(
+            name="Test Place",
+            city_id="test_city_id",
+            user_id="test_user_id"
+        )
         self.assertEqual(place.name, "Test Place")
         self.assertEqual(place.city_id, "test_city_id")
         self.assertEqual(place.user_id, "test_user_id")
