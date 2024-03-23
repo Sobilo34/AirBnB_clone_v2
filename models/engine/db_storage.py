@@ -1,3 +1,9 @@
+#!/usr/bin/python3
+"""
+A Database Storage
+"""
+
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.exc import OperationalError
@@ -18,12 +24,17 @@ class DBStorage:
     def __init__(self):
         """Set up the DBStorage"""
         try:
-            self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'
-                                          .format(os.environ['HBNB_MYSQL_USER'],
-                                                  os.environ['HBNB_MYSQL_PWD'],
-                                                  os.environ['HBNB_MYSQL_HOST'],
-                                                  os.environ['HBNB_MYSQL_DB']),
-                                          pool_pre_ping=True)
+            self.__engine = create_engine(
+                    'mysql+mysqldb://{}:{}@{}/{}'
+                    .format(
+                        os.environ['HBNB_MYSQL_USER'],
+                        os.environ['HBNB_MYSQL_PWD'],
+                        os.environ['HBNB_MYSQL_HOST'],
+                        os.environ['HBNB_MYSQL_DB']
+                    ),
+                    pool_pre_ping=True
+            )
+
         except KeyError as e:
             raise EnvironmentError(f"Environment variable {e} is not set.")
 
@@ -44,7 +55,8 @@ class DBStorage:
                 objects.extend(self.__session.query(cls).all())
         else:
             objects = self.__session.query(cls).all()
-        return {"{}.{}".format(type(obj).__name__, obj.id): obj for obj in objects}
+        return {"{}.{}".format(
+            type(obj).__name__, obj.id): obj for obj in objects}
 
     def new(self, obj):
         """Add the object to the current database session"""
