@@ -9,6 +9,7 @@ from models.state import State
 from models.user import User
 import os
 
+
 class DBStorage:
     __engine = None
     __session = None
@@ -31,7 +32,8 @@ class DBStorage:
                 objects.extend(self.__session.query(cls).all())
         else:
             objects = self.__session.query(cls).all()
-        return {"{}.{}".format(type(obj).__name__, obj.id): obj for obj in objects}
+        return {"{}.{}".format(type(
+            obj).__name__, obj.id): obj for obj in objects}
 
     def new(self, obj):
         """Add the object to the current database session"""
@@ -47,7 +49,7 @@ class DBStorage:
             self.__session.delete(obj)
 
     def reload(self):
-        """Create all tables in the database and create the current database session"""
+        """Reloads the created database"""
         Base.metadata.create_all(self.__engine)
         Session = sessionmaker(bind=self.__engine)
         self.__session = scoped_session(Session)
