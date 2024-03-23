@@ -46,18 +46,12 @@ class Place(BaseModel, Base):
         @property
         def reviews(self):
             """An object that gets a list of all linked Reviews."""
-            return [
-                    review for review in self.reviews
-                    if review.place_id == self.id
-                    ]
+            return [review for review in self.reviews if review.place_id == self.id]
 
         @property
         def amenities(self):
             """The getter for linked Amenities."""
-            return [
-                    amenity for amenity in self.amenities
-                    if amenity.id in self.amenity_ids
-                    ]
+            return [amenity for amenity in self.amenities if amenity.id in self.amenity_ids]
 
         @amenities.setter
         def amenities(self, value):
