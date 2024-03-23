@@ -24,7 +24,7 @@ class State(BaseModel):
             """
             cities = models.storage.all(City)
             self.__cities = [
-                         city for city in all_cities.values()
-                         if city.state_id == self.id
-                     ]
+                city for city in cities.values()
+                if city.state_id == self.id
+            ]
             return self.__cities
