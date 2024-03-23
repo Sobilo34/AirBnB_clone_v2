@@ -60,6 +60,15 @@ class FileStorage:
             pass
 
     def delete(self, obj=None):
+        """
+        Deletes an object from storage if it exists.
+
+        Args:
+            obj: The object to be deleted.
+
+        Returns:
+            None
+        """
         if obj is None:
             return
         to_delete = None
