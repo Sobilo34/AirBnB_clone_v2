@@ -1,18 +1,10 @@
 #!/usr/bin/python3
 """Defines the Place class."""
-import models
 from os import getenv
-from models.base_model import Base
-from models.base_model import BaseModel
-from models.amenity import Amenity
-from models.review import Review
-from sqlalchemy import Column
-from sqlalchemy import Float
-from sqlalchemy import ForeignKey
-from sqlalchemy import Integer
-from sqlalchemy import String
-from sqlalchemy import Table
+from models.base_model import BaseModel, Base
+from sqlalchemy import Column, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
+from sqlalchemy import Table
 
 
 association_table = Table("place_amenity", Base.metadata,
@@ -39,31 +31,31 @@ class Place(BaseModel, Base):
     longitude = Column(Float)
     reviews = relationship("Review", backref="place", cascade="delete")
     amenities = relationship(
-            "Amenity", secondary="place_amenity", viewonly=False)
-    amenity_ids = []
+        "Amenity",
+        secondary="place_amenity",
+        viewonly=False,
+        back_populates="place_amenities"
+    )
+
+    def __init__(self, *args, **kwargs):
+        """Initialize Place instance."""
+        super().__init__(*args, **kwargs)
+        self.amenity_ids = []
 
     if getenv("HBNB_TYPE_STORAGE", None) != "db":
         @property
         def reviews(self):
-            """An object that gets a list
-            of all linked Reviews."""
-            review_list = []
-            for review in list(models.storage.all(Review).values()):
-                if review.place_id == self.id:
-                    review_list.append(review)
-            return review_list
+            """An object that gets a list of all linked Reviews."""
+            return [review for review in self.reviews if review.place_id == self.id]
 
         @property
         def amenities(self):
-            """The getter and setter for
-            linked Amenities."""
-            amenity_list = []
-            for amenity in list(models.storage.all(Amenity).values()):
-                if amenity.id in self.amenity_ids:
-                    amenity_list.append(amenity)
-            return amenity_list
+            """The getter for linked Amenities."""
+            return [amenity for amenity in self.amenities if amenity.id in self.amenity_ids]
 
         @amenities.setter
         def amenities(self, value):
-            if type(value) == Amenity:
+            """The setter for linked Amenities."""
+            if isinstance(value, Amenity):
                 self.amenity_ids.append(value.id)
+
