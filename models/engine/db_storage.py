@@ -25,8 +25,8 @@ class DBStorage:
                                                   os.environ['HBNB_MYSQL_DB']),
                                           pool_pre_ping=True)
         except KeyError as e:
-            print(f"Error: Environment variable {e} is not set.")
-            return
+            raise EnvironmentError(f"Environment variable {e} is not set.")
+
         except OperationalError as e:
             print(f"Error: {e}")
             return
@@ -80,4 +80,3 @@ class DBStorage:
         Base.metadata.create_all(self.__engine)
         Session = sessionmaker(bind=self.__engine)
         self.__session = scoped_session(Session)
-
