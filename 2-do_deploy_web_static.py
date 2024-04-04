@@ -1,55 +1,52 @@
 #!/usr/bin/python3
 """
-A Fabric script that distributes an archive to your web servers.
+Fabric script that distributes an archive to my two web servers
 """
+
 from fabric.api import env, put, run
-from os.path import exists
-from datetime import datetime
-env.hosts = ['<IP web-01>', '<IP web-02>']
+import os
+
+# Servers' IP addresses
+env.hosts = ['54.90.14.221', '204.236.240.155']
+# The user to connect as
 env.user = 'ubuntu'
-env.key_filename = '/path/to/your/private/key'
 
 
 def do_deploy(archive_path):
     """
-    A script that distributes an archive to the web servers
-
-    Args:
-        archive_path (str): The path to the archive to deploy.
-
-    Returns:
-        bool: True if all operations were successful, False otherwise.
+    This is a script that distributes an archive to my two web servers
     """
-    if not exists(archive_path):
+    if not os.path.exists(archive_path):
         return False
 
     try:
-        # Upload the archive to /tmp/ directory of the web server
-        put(archive_path, '/tmp/')
+        # Upload the archive to the /tmp/ directory of the web server
+        put(archive_path, "/tmp/")
 
-        # Extract the archive to /data/web_static/releases/
-        filename = archive_path.split('/')[-1].split('.')[0]
-        run('mkdir -p /data/web_static/releases/{}/'.format(filename))
-        run('tar -xzf /tmp/{}.tgz -C /data/web_static/releases/{}/'
-            .format(filename, filename))
+        # Uncompress the archive to the folder
+        # /data/web_static/releases/<archive filename without extension>
 
-        # Remove the archive from the web server
-        run('rm /tmp/{}.tgz'.format(filename))
+        archive_filename = os.path.basename(archive_path)
+        archive_name_no_ext = archive_filename.split('.')[0]
+        releases_folder = "/data/web_static/releases/"
+        release_folder = releases_folder + archive_name_no_ext + "/"
+        run("mkdir -p {}".format(release_folder))
+        run("tar -xzf /tmp/{} -C {}".format(archive_filename, release_folder))
 
-        # Move the contents of the extracted folder to its parent directory
-        run('mv /data/web_static/releases/{}/web_static/* '
-            '/data/web_static/releases/{}/'
-            .format(filename, filename))
+        # Delete the archive from the web server
+        run("rm /tmp/{}".format(archive_filename))
 
-        # Remove the empty web_static directory
-        run('rm -rf /data/web_static/releases/{}/web_static'.format(filename))
+        # Move contents of release_folder/web_static/ to release_folder/
+        run("mv {}web_static/* {}".format(release_folder, release_folder))
+        run("rm -rf {}web_static".format(release_folder))
 
-        # Update the symbolic link
-        run('rm -rf /data/web_static/current')
-        run('ln -s /data/web_static/releases/{}/ /data/web_static/current'
-            .format(filename))
+        # Delete the symbolic link /data/web_static/current from the web server
+        run("rm -rf /data/web_static/current")
 
+        # Create a new symbolic link
+        run("ln -s {} /data/web_static/current".format(release_folder))
+
+        print("New version deployed!")
         return True
     except Exception as e:
-        print(e)
         return False
