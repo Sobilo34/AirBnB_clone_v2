@@ -1,14 +1,13 @@
 #!/usr/bin/python3
 """
-Fabric script that deletes out-of-date archives.
+Deletes out-of-date archives using the function do_clean.
 """
-from fabric.api import env, run, local
-from datetime import datetime
-from os.path import exists
 
-env.hosts = ['<IP web-01>', '<IP web-02>']
-env.user = 'ubuntu'
-env.key_filename = '/path/to/your/private/key'
+import os
+from fabric.api import *
+
+# Servers' IP addresses
+env.hosts = ['54.90.14.221', '204.236.240.155']
 
 
 def do_clean(number=0):
@@ -17,63 +16,21 @@ def do_clean(number=0):
 
     Args:
         number (int): The number of archives to keep. Default is 0.
+            0 or 1: Keep only the most recent version.
+            2: Keep the two most recent versions.
+            etc.
     """
-    # Determine the list of archives to keep
-    if int(number) <= 1:
-        number_to_keep = 1
-    else:
-        number_to_keep = int(number)
+    number = 1 if int(number) == 0 else int(number)
 
-    # Get the list of archives in the versions folder
-    archives = local('ls -1t versions', capture=True).split('\n')
+    # Local cleaning
+    zips = sorted(os.listdir("versions"))
+    [zips.pop() for i in range(number)]
+    with lcd("versions"):
+        [local("rm ./{}".format(a)) for a in zips]
 
-    # Delete unnecessary archives in the versions folder
-    for archive in archives[number_to_keep:]:
-        local('rm -f versions/{}'.format(archive))
-
-    # Get the list of archives in the releases folder of each web server
-    for host in env.hosts:
-        releases = run('ls -1t /data/web_static/releases').split('\n')
-
-        # Delete unnecessary archives in the releases folder
-        for release in releases[number_to_keep:]:
-            run('rm -rf /data/web_static/releases/{}'.format(release))#!/usr/bin/python3
-"""
-Fabric script that deletes out-of-date archives.
-"""
-from fabric.api import env, run, local
-from datetime import datetime
-from os.path import exists
-
-env.hosts = ['<IP web-01>', '<IP web-02>']
-env.user = 'ubuntu'
-env.key_filename = '/path/to/your/private/key'
-
-
-def do_clean(number=0):
-    """
-    Deletes out-of-date archives.
-
-    Args:
-        number (int): The number of archives to keep. Default is 0.
-    """
-    # Determine the list of archives to keep
-    if int(number) <= 1:
-        number_to_keep = 1
-    else:
-        number_to_keep = int(number)
-
-    # Get the list of archives in the versions folder
-    archives = local('ls -1t versions', capture=True).split('\n')
-
-    # Delete unnecessary archives in the versions folder
-    for archive in archives[number_to_keep:]:
-        local('rm -f versions/{}'.format(archive))
-
-    # Get the list of archives in the releases folder of each web server
-    for host in env.hosts:
-        releases = run('ls -1t /data/web_static/releases').split('\n')
-
-        # Delete unnecessary archives in the releases folder
-        for release in releases[number_to_keep:]:
-            run('rm -rf /data/web_static/releases/{}'.format(release))
+    # Remote cleaning
+    with cd("/data/web_static/releases"):
+        zips = run("ls -tr").split()
+        zips = [a for a in zips if "web_static_" in a]
+        [zips.pop() for i in range(number)]
+        [run("rm -rf ./{}".format(a)) for a in zips]
