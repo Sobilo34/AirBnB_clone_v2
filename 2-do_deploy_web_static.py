@@ -1,107 +1,103 @@
 #!/usr/bin/python3
-""" Transfers file from local to remote """
-from fabric.api import *
-import datetime
+"""
+Fabric script that distributes an archive to my two web servers
+"""
 
+from fabric.api import env, put, run
+import os
 
-env.use_ssh_config = True
-env.hosts = ['35.237.82.133', '35.196.231.32']
+# Servers' IP addresses
+env.hosts = ['54.90.14.221', '204.236.240.155']
+# The user to connect as
 env.user = 'ubuntu'
-env.key_filename = '~/.ssh/holberton'
-date = datetime.datetime.now().strftime("%Y%m%d%I%M%S")
-
-
-def transfer():
-    """ transfers a specific file """
-    put('./0-setup_web_static.sh', '/tmp/')
-
-
-def do_pack():
-    """
-        Generates a .tgz archive from the contents of web_static folder
-        Return: the archive path if the archive has been correctly generated
-        Otherwise Return: None
-    """
-    local("mkdir -p ./versions")
-    local("tar czvf ./versions/web_static_{}.tgz ./web_static/*".format(date))
 
 
 def do_deploy(archive_path):
-    """ Distributes an archive to multiple webservers """
-    try:
-        if not archive_path:
-            return False
-        try:
-            name = archive_path.split('/')[-1]
-        except:
-            name = archive_path
+    """
+    This is a script that distributes an archive to my two web servers
+    """
+    if not os.path.exists(archive_path):
+        return False
 
-        put(archive_path, '/tmp/')
-        run("mkdir -p /data/web_static/releases/{}/".format(name[:-4]))
-        with cd('/tmp/'):
-            run('tar xzf {} -C /data/web_static/releases/{}/'.format(name,
-                name[:-4]))
-            sudo('rm ./{}'.format(name))
-        with cd('/data/web_static/'):
-            run('mv releases/{}/web_static/*\
-                    /data/web_static/releases/{}/'
-                .format(name[:-4], name[:-4]))
-            run('rm -rf ./current')
-            run('ln -s /data/web_static/releases/{}/\
-                    /data/web_static/current'.format(name[:-4]))
+    try:
+        # Upload the archive to the /tmp/ directory of the web server
+        put(archive_path, "/tmp/")
+
+        # Uncompress the archive to the folder
+        # /data/web_static/releases/<archive filename without extension>
+
+        archive_filename = os.path.basename(archive_path)
+        archive_name_no_ext = archive_filename.split('.')[0]
+        releases_folder = "/data/web_static/releases/"
+        release_folder = releases_folder + archive_name_no_ext + "/"
+        run("mkdir -p {}".format(release_folder))
+        run("tar -xzf /tmp/{} -C {}".format(archive_filename, release_folder))
+
+        # Delete the archive from the web server
+        run("rm /tmp/{}".format(archive_filename))
+
+        # Move contents of release_folder/web_static/ to release_folder/
+        run("mv {}web_static/* {}".format(release_folder, release_folder))
+        run("rm -rf {}web_static".format(release_folder))
+
+        # Delete the symbolic link /data/web_static/current from the web server
+        run("rm -rf /data/web_static/current")
+
+        # Create a new symbolic link
+        run("ln -s {} /data/web_static/current".format(release_folder))
+
+        print("New version deployed!")
         return True
-    except:
+    except Exception as e:
         return False#!/usr/bin/python3
-""" Transfers file from local to remote """
-from fabric.api import *
-import datetime
+"""
+Fabric script that distributes an archive to my two web servers
+"""
 
+from fabric.api import env, put, run
+import os
 
-env.use_ssh_config = True
-env.hosts = ['35.237.82.133', '35.196.231.32']
+# Servers' IP addresses
+env.hosts = ['54.90.14.221', '204.236.240.155']
+# The user to connect as
 env.user = 'ubuntu'
-env.key_filename = '~/.ssh/holberton'
-date = datetime.datetime.now().strftime("%Y%m%d%I%M%S")
-
-
-def transfer():
-    """ transfers a specific file """
-    put('./0-setup_web_static.sh', '/tmp/')
-
-
-def do_pack():
-    """
-        Generates a .tgz archive from the contents of web_static folder
-        Return: the archive path if the archive has been correctly generated
-        Otherwise Return: None
-    """
-    local("mkdir -p ./versions")
-    local("tar czvf ./versions/web_static_{}.tgz ./web_static/*".format(date))
 
 
 def do_deploy(archive_path):
-    """ Distributes an archive to multiple webservers """
-    try:
-        if not archive_path:
-            return False
-        try:
-            name = archive_path.split('/')[-1]
-        except:
-            name = archive_path
+    """
+    This is a script that distributes an archive to my two web servers
+    """
+    if not os.path.exists(archive_path):
+        return False
 
-        put(archive_path, '/tmp/')
-        run("mkdir -p /data/web_static/releases/{}/".format(name[:-4]))
-        with cd('/tmp/'):
-            run('tar xzf {} -C /data/web_static/releases/{}/'.format(name,
-                name[:-4]))
-            sudo('rm ./{}'.format(name))
-        with cd('/data/web_static/'):
-            run('mv releases/{}/web_static/*\
-                    /data/web_static/releases/{}/'
-                .format(name[:-4], name[:-4]))
-            run('rm -rf ./current')
-            run('ln -s /data/web_static/releases/{}/\
-                    /data/web_static/current'.format(name[:-4]))
+    try:
+        # Upload the archive to the /tmp/ directory of the web server
+        put(archive_path, "/tmp/")
+
+        # Uncompress the archive to the folder
+        # /data/web_static/releases/<archive filename without extension>
+
+        archive_filename = os.path.basename(archive_path)
+        archive_name_no_ext = archive_filename.split('.')[0]
+        releases_folder = "/data/web_static/releases/"
+        release_folder = releases_folder + archive_name_no_ext + "/"
+        run("mkdir -p {}".format(release_folder))
+        run("tar -xzf /tmp/{} -C {}".format(archive_filename, release_folder))
+
+        # Delete the archive from the web server
+        run("rm /tmp/{}".format(archive_filename))
+
+        # Move contents of release_folder/web_static/ to release_folder/
+        run("mv {}web_static/* {}".format(release_folder, release_folder))
+        run("rm -rf {}web_static".format(release_folder))
+
+        # Delete the symbolic link /data/web_static/current from the web server
+        run("rm -rf /data/web_static/current")
+
+        # Create a new symbolic link
+        run("ln -s {} /data/web_static/current".format(release_folder))
+
+        print("New version deployed!")
         return True
-    except:
+    except Exception as e:
         return False
