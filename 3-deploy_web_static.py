@@ -94,14 +94,8 @@ def deploy():
         return False
 
     # Deploy the archive to the web servers
-    return do_deploy(archive_path)#!/usr/bin/python3
-"""
-A fabric script that creates and distributes an archive to your web servers.
-"""
-from fabric.api import env, local, put, run
-from os.path import exists
-from datetime import datetime
-from fabric.contrib import files
+    return do_deploy(archive_path)
+
 
 env.hosts = ['<IP web-01>', '<IP web-02>']
 env.user = 'ubuntu'
