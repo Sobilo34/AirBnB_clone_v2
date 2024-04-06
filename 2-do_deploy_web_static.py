@@ -14,7 +14,7 @@ env.user = 'ubuntu'
 
 def do_deploy(archive_path):
     """
-    This is a script that distributes an archive to my two web servers
+    Distributes an archive to my two web servers
     """
     if not os.path.exists(archive_path):
         return False
@@ -49,8 +49,13 @@ def do_deploy(archive_path):
         print("New version deployed!")
         return True
     except Exception as e:
-        return False
+        return False#!/usr/bin/python3
+"""
+Fabric script that distributes an archive to my two web servers
+"""
 
+from fabric.api import env, put, run
+import os
 
 # Servers' IP addresses
 env.hosts = ['54.90.14.221', '204.236.240.155']
@@ -60,7 +65,7 @@ env.user = 'ubuntu'
 
 def do_deploy(archive_path):
     """
-    This is a script that distributes an archive to my two web servers
+    Distributes an archive to my two web servers
     """
     if not os.path.exists(archive_path):
         return False
