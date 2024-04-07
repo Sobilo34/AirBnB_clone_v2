@@ -1,52 +1,55 @@
-#!/usr/bin/python3
-"""
-Fabric script that distributes an archive to my two web servers
-"""
-
-from fabric.api import env, put, run
-import os
-
-# Servers' IP addresses
-env.hosts = ['54.90.14.221', '204.236.240.155']
-# The user to connect as
-env.user = 'ubuntu'
-
-
-def do_deploy(archive_path):
-    """
-    Distributes an archive to my two web servers
-    """
-    if not os.path.exists(archive_path):
-        return False
-
-    try:
-        # Upload the archive to the /tmp/ directory of the web server
-        put(archive_path, "/tmp/")
-
-        # Uncompress the archive to the folder
-        # /data/web_static/releases/<archive filename without extension>
-
-        archive_filename = os.path.basename(archive_path)
-        archive_name_no_ext = archive_filename.split('.')[0]
-        releases_folder = "/data/web_static/releases/"
-        release_folder = releases_folder + archive_name_no_ext + "/"
-        run("mkdir -p {}".format(release_folder))
-        run("tar -xzf /tmp/{} -C {}".format(archive_filename, release_folder))
-
-        # Delete the archive from the web server
-        run("rm /tmp/{}".format(archive_filename))
-
-        # Move contents of release_folder/web_static/ to release_folder/
-        run("mv {}web_static/* {}".format(release_folder, release_folder))
-        run("rm -rf {}web_static".format(release_folder))
-
-        # Delete the symbolic link /data/web_static/current from the web server
-        run("rm -rf /data/web_static/current")
-
-        # Create a new symbolic link
-        run("ln -s {} /data/web_static/current".format(release_folder))
-
-        print("New version deployed!")
-        return True
-    except Exception as e:
-        return False
+#!/usr/bin/python3 
+ """ 
+ a Fabric script that generates a .tgz archive from the contents of the 
+     web_static 
+ """ 
+  
+  
+ from fabric.api import * 
+ from datetime import datetime 
+ import time 
+ import os 
+  
+  
+ env.user = "ubuntu" 
+ env.hosts = ["54.197.44.251", "34.207.121.185"] 
+  
+  
+ def do_pack(): 
+     """ 
+         a fabfile to pack the contents of folder into .tgz 
+     """ 
+  
+     # get the current time 
+     time = datetime.now().strftime("%Y%m%d%H%M%S") 
+  
+     local("mkdir -p versions") 
+     result = local(f"tar -cvzf versions/web_static_{time}.tgz web_static/", 
+                    capture=True) 
+     if result.succeeded: 
+         return f"versions/web_static_{time}.tgz" 
+     else: 
+         return None 
+  
+  
+ def do_deploy(archive_path): 
+     """ 
+         a fabfile to unpack .tgz file and upload to the remote server 
+     """ 
+     f_name = archive_path.split('/')[-1] 
+     p_name = f_name.split('.')[0] 
+     dest = f"/data/web_static/releases/{p_name}" 
+     if os.path.exists(archive_path): 
+         put(archive_path, "/tmp/") 
+         run(f"sudo mkdir -p {dest}") 
+         run(f"sudo mkdir -p /data/web_static/current") 
+         run(f"sudo tar -xzf /tmp/{f_name} -C {dest}") 
+         run(f"sudo rm /tmp/{f_name}") 
+         run(f"sudo mv {dest}/web_static/* {dest}") 
+         run(f"sudo rm -rf {dest}/web_static") 
+         run("sudo rm -rf /data/web_static/current") 
+         run(f"sudo ln -sf {dest}/ /data/web_static/current") 
+         print("New version deployed!") 
+         return True 
+     else: 
+         return False
