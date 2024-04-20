@@ -37,7 +37,7 @@ def display_py_text(text):
 @app.route('/number/<int:n>', strict_slashes=False)
 def display_n_number(n):
     """Route to display “n is a number” only if n is an integer"""
-        return '{} is a number'.format(n)
+    return '{} is a number'.format(n)
 
 
 if __name__ == '__main__':
