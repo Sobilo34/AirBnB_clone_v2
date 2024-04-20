@@ -93,7 +93,6 @@ class DBStorage:
         Session = sessionmaker(bind=self.__engine)
         self.__session = scoped_session(Session)
 
-    
     def remove(self, obj=None):
         """Remove the object from the current database session."""
         if not self.__session:
@@ -102,4 +101,3 @@ class DBStorage:
 
         if obj:
             self.__session.delete(obj)
-        
