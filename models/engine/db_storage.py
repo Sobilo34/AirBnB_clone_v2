@@ -93,11 +93,8 @@ class DBStorage:
         Session = sessionmaker(bind=self.__engine)
         self.__session = scoped_session(Session)
 
-    def remove(self, obj=None):
-        """Remove the object from the current database session."""
-        if not self.__session:
-            print("Error: Session is not initialized.")
-            return
-
-        if obj:
-            self.__session.delete(obj)
+    def close(self):
+        """
+        Closes the current session
+        """
+        self.__session.close()
