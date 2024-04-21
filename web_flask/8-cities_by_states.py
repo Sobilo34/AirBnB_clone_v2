@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 """
-Starts a Flask web application that listens on 0.0.0.0, port 5000
+A python scrit that starts a Flask web application
+that listens on 0.0.0.0, port 5000
 """
 
 from models import storage
