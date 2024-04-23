@@ -34,5 +34,6 @@ def number_route(n):
 def number_template_route(n):
     return render_template('5_number_template.html', n=n)
 
+
 if __name__ == "__main__":
     app.run(port=5000, host='0.0.0.0')
