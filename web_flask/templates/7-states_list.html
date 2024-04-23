@@ -1,17 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>States</title>
+<!DOCTYPE HTML>
+<HTML lang="en">
+    <TITLE>States</TITLE>
 </head>
-<body>
-    <h1>States</h1>
-    <ul>
-        {% for state in states %}
-            <li>{{ state.id }}: <b>{{ state.name }}</b></li>
-        {% endfor %}
-    </ul>
-</body>
-</html>
+<BODY>
+    {% extends 'base.html' %}
+
+    {%- block content -%}
+        <H1>States</H1>
+        <UL>
+            {% for state in states|sort(attribute="name") %}
+            <LI>{{ state.id }}: <B>{{ state.name }}</B></LI>
+            {% endfor %}
+        </UL>
+    {%- endblock content %}
+    </BODY>
+</HTML>
