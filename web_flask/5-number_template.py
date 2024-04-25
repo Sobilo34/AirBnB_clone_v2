@@ -37,16 +37,15 @@ def display_py_text(text):
 @app.route('/number/<int:n>', strict_slashes=False)
 def display_n_number(n):
     """Route to display “n is a number” only if n is an integer"""
-    return '{} is a number'.format(n)
+    return '{:d} is a number'.format(n)
 
 
-@app.route('/number_template/<int:n>', strict_slashes=False)
-def number_template(n):
-    """Function to display an HTML page only if n is an integer"""
-    if not isinstance(n, int):
-        return 'Error: {} is not a valid integer'.format(n)
-    else:
-        return render_template('5-number_template.html', n=n)
+@app.route('/number_template/<int:n>')
+def template_int(n):
+    """
+    Route that displays an HTML page if n is an integer
+    """
+    return render_template('5-number.html', number=n)
 
 
 if __name__ == '__main__':
